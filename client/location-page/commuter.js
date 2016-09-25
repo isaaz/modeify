@@ -53,7 +53,7 @@ View.prototype.location = function () {
 View.prototype.remove = function () {
   var self = this
   ConfirmModal({
-    text: 'Are you sure want to delete this commuter?'
+    text: 'Are you sure want to remove this commuter from this location?'
   }, function () {
     CommuterLocation.remove(self.model._id, function (err) {
       if (err) {

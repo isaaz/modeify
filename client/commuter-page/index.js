@@ -7,6 +7,7 @@ var request = require('../request')
 var template = require('./template.html')
 var view = require('../view')
 
+var ConfirmModal = require('../confirm-modal')
 var CommuterLocation = require('../commuter-location')
 
 /**
@@ -30,6 +31,7 @@ module.exports = function (ctx, next) {
 
     commuterLocations = commuterLocations.map(function (cl) {
       return {
+        clId: cl._id,
         organizationId: cl._location.get('created_by'),
         locationId: cl._location.get('_id'),
         name: cl._location.get('name'),
@@ -136,6 +138,22 @@ var LocationRow = view(require('./location.html'))
 
 LocationRow.prototype['matches-view'] = function () {
   return Match
+}
+
+LocationRow.prototype.remove = function () {
+  var self = this
+  ConfirmModal({
+    text: 'Are you sure want to remove this commuter from this location?'
+  }, function () {
+    CommuterLocation.remove(self.model.clId, function (err) {
+      if (err) {
+        console.error(err)
+        window.alert(err)
+      } else {
+        self.el.remove()
+      }
+    })
+  })
 }
 
 View.prototype['commuterLocations-view'] = function () {
