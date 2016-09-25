@@ -43,8 +43,26 @@
     <div class="col-sm-12">
       <h3>
         Commuters <span class="label label-primary">{commuterCount}</span>
-        <button class="btn btn-info pull-right" on-tap="parseCSV"><i class="fa fa-upload"></i> Bulk Upload</button>
-        <a class="btn btn-success pull-right" href="/manager/organizations/{created_by}/locations/{_id}/commuters/new"><i class="fa fa-plus"></i> Add Commuter</a>
+        <div class="btn-toolbar pull-right">
+          <a class="btn btn-success" href="/manager/organizations/{created_by}/locations/{_id}/commuters/new">
+            <i class="fa fa-user-plus"></i> New Commuter
+          </a>
+
+          <div class="btn-group">
+            <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="fa fa-users"></i> Bulk Add Commuters <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+              <li><a href="#" on-tap="parseCSV">
+                <i class="fa fa-upload"></i>&nbsp;&nbsp;Upload CSV</a>
+              </li>
+              <li><a href="#" on-tap="copyExisting">
+                <i class="fa fa-share"></i>&nbsp;&nbsp;Copy from Existing</a>
+              </li>
+            </ul>
+          </div>
+
+        </div>
       </h3>
 
       <nav>

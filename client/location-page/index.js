@@ -11,13 +11,16 @@ var spin = require('../spinner')
 var view = require('../view')
 var alerts = require('../alerts')
 var page = require('page')
+var request = require('../request')
 
 var CommuterRow = require('./commuter')
 var CommuterUploadModal = require('./commuter-upload-modal')
 var CommuterConfirmModal = require('./commuter-confirm-modal')
+var CopyLocationModal = require('./copy-location-modal')
 var View = view(require('./template.html'))
 var ConfirmModal = require('../confirm-modal')
 var CommuterLocation = require('../commuter-location')
+var Location = require('../location')
 
 var pageSize = 100
 
@@ -79,8 +82,8 @@ View.prototype.loadCoordinates = function () {
             size: 14
           }))
         })
-      } catch(err) {
-        console.log(err);
+      } catch (err) {
+        console.log(err)
       }
 
       if (cluster.getBounds()._northEast) {
@@ -180,6 +183,45 @@ View.prototype.match = function () {
       page('/manager/organizations/' + self.options.organization._id() + '/locations/' + self.model._id() + '/show')
     }
   })
+}
+
+/**
+ * Copy from existing
+ */
+
+View.prototype.copyExisting = function () {
+  var view = this
+
+  request
+    .get('/locations/created_by/' + this.options.organization._id(), function (err, res) {
+      if (err) {
+        console.log('error retrieving locations in copy-location-modal', err)
+      } else {
+        var locations = res.body.map(function (l) {
+          return new Location(l)
+        })
+
+        try {
+          var modal = new CopyLocationModal({
+            locations: locations
+          }, {
+            onContinue: function (sources) {
+              view.model.copyCommuters(sources, function (err) {
+                if (err) {
+                  console.log('error copying commuters: ' + err)
+                } else {
+                  page('/manager/organizations/' + view.options.organization._id() + '/locations/' + view.model._id() + '/show')
+                }
+              })
+            }
+          })
+
+          document.body.appendChild(modal.el)
+        } catch (err) {
+          console.log(err)
+        }
+      }
+    })
 }
 
 View.prototype.profile = function () {

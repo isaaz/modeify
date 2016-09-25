@@ -106,3 +106,18 @@ Location.prototype.sendProfilesAndMatches = function (callback) {
     }
   })
 }
+
+Location.prototype.copyCommuters = function (sources, callback) {
+  request.get('/commuter-locations/copy-commuters', {
+    _location: this._id(),
+    sources: sources
+  }, function (err, res) {
+    if (err) {
+      console.log('CC err', err);
+      callback(err)
+    } else {
+      console.log('CC OK!');
+      callback(null, res.text)
+    }
+  })
+}

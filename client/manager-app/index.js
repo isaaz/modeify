@@ -4,6 +4,10 @@ require('html5-history-api')
 require('../manager-router')
 require('./style.css')
 
+// includde bootstrap.js
+window.jQuery = require('jquery')
+require('bootstrap')
+
 var Nav = require('../manager-nav')
 var onLoad = require('../../components/ianstormtaylor/on-load/0.0.2')
 var page = require('page')
