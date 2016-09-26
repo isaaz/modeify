@@ -32,14 +32,19 @@ LocationRow.prototype.remove = function () {
       if (err) {
         console.error(err)
         window.alert(err)
-      } else if (cls.length > 0 || ridepools.length > 0) {
+      } else if (ridepools.length > 0) {
         ConfirmModal({
-          text: 'Cannot delete ' + self.model.name() + '; in use by ' + cls.length + ' commuter(s) and ' + ridepools.length + ' ridepool(s)',
+          text: 'Cannot delete ' + self.model.name() + '; in use by ' + ridepools.length + ' ridepool(s)',
           showCancel: false
         })
       } else {
+        var modalText = 'Are you sure you want to delete ' + self.model.get('name') + '?'
+        if (cls.length > 0) {
+          modalText += ' This will affect ' + cls.length + ' commuters currently associated with this location.'
+        }
+
         ConfirmModal({
-          text: 'Are you sure <br>want to delete ' + self.model.get('name') + '?'
+          text: modalText
         }, function () {
           request.del('/locations/' + self.model._id(), function (err) {
             if (err) {
