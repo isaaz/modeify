@@ -20,6 +20,7 @@ var redirectIfNotAdmin = required(['administrator'], '/organizations')
 
 p('*', function (ctx, next) {
   ctx.manager = true
+  if(window.monitor) window.clearInterval(window.monitor)
   next()
 }, require('../alerts'))
 

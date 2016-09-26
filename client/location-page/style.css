@@ -33,3 +33,15 @@
   padding: 10px;
   z-index: 1000;
 }
+
+.progress {
+    position: relative;
+    margin-bottom: 0px;
+}
+
+.progress span {
+    position: absolute;
+    display: block;
+    width: 100%;
+    color: black;
+ }

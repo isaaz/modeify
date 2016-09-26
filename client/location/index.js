@@ -18,6 +18,9 @@ var Location = module.exports = model('Location')
   .attr('rideshare_manager')
   .attr('commuter_count')
   .attr('match_radius')
+  .attr('last_matched')
+  .attr('last_profiled')
+  .attr('commuters_profiled')
 
 Location.load = function (ctx, next) {
   log('loading %s', ctx.params.location)

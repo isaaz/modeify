@@ -12,6 +12,7 @@ var view = require('../view')
 var alerts = require('../alerts')
 var page = require('page')
 var request = require('../request')
+var moment = require('moment')
 
 var CommuterRow = require('./commuter')
 var CommuterUploadModal = require('./commuter-upload-modal')
@@ -63,6 +64,47 @@ View.prototype.loadPage = function () {
       self.model.emit('change commuterLocations')
     }
   })
+
+  self.model.commutersProfiled = 0
+  window.monitor = window.setInterval(this.checkProgress.bind(this), 2000)
+
+  this.checkProgress()
+}
+
+View.prototype.checkProgress = function () {
+  var self = this
+
+  request.get('/locations/' + self.model._id(), function (err, res) {
+    if (err) {
+      console.log('error retrieving location in location-page progress monitor', err)
+    } else {
+      self.model.commuters_profiled(res.body.commuters_profiled)
+      self.model.last_profiled(res.body.last_profiled)
+      self.model.emit('change commutersProfiled')
+      self.model.emit('change profiledPercentage')
+      self.model.emit('change matchStatus')
+      self.model.emit('change profileStatus')
+      self.model.emit('change isProfiling')
+    }
+  })
+}
+
+View.prototype.profiledPercentage = function () {
+  return 100 * (this.model.commuters_profiled() || 0) / this.commuterCount()
+}
+
+View.prototype.isProfiling = function () {
+  return (this.model.commuters_profiled() && this.model.commuters_profiled() < this.commuterCount())
+}
+
+View.prototype.profileStatus = function () {
+  if (!this.model.last_profiled()) return 'Profiles have not been generated for this location'
+  return 'Profiles last generated ' + moment(this.model.last_profiled()).format('LLLL')
+}
+
+View.prototype.matchStatus = function () {
+  if (!this.model.last_matched()) return 'Ridematching has not been run for this location'
+  return 'Last matched ' + moment(this.model.last_matched()).format('LLLL')
 }
 
 View.prototype.loadCoordinates = function () {
