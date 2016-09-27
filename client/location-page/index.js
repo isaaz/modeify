@@ -117,12 +117,13 @@ View.prototype.loadCoordinates = function () {
         var cluster = L.markerClusterGroup()
         coords.forEach(function (coord) {
           if (!coord || !coord.lat || !coord.lng) return
-          cluster.addLayer(map.createMarker({
+          var marker = map.createMarker({
             color: '#5cb85c',
             coordinate: [coord.lng, coord.lat],
             icon: 'home',
             size: 14
-          }))
+          }).bindPopup('<a href="/manager/organizations/' + self.options.organization._id() + '/commuters/' + coord.commuterId + '/show">View Commuter</a>')
+          cluster.addLayer(marker)
         })
       } catch (err) {
         console.log(err)
