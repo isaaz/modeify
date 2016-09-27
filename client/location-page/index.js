@@ -80,11 +80,13 @@ View.prototype.checkProgress = function () {
     } else {
       self.model.commuters_profiled(res.body.commuters_profiled)
       self.model.last_profiled(res.body.last_profiled)
+      self.model.commuter_count(res.body.commuter_count)
       self.model.emit('change commutersProfiled')
       self.model.emit('change profiledPercentage')
       self.model.emit('change matchStatus')
       self.model.emit('change profileStatus')
       self.model.emit('change isProfiling')
+      self.model.emit('change commuterCount')
     }
   })
 }
