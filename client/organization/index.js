@@ -23,6 +23,7 @@ var Organization = module.exports = model('Organization')
   .attr('main_url')
   .attr('logo_url')
   .attr('labels')
+  .attr('location_count')
 
 /**
  * Load middleware
