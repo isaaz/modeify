@@ -87,8 +87,7 @@ Commuter.prototype.mapMarker = function () {
     description: '<a href="/manage/organizations/' + this._organization() + '/commuters/' + this._id() + '/show">' + this.fuzzyAddress() + '</a>',
     color: '#5cb85c',
     coordinate: [c.lng, c.lat],
-    icon: 'building',
-    size: 'small'
+    icon: 'home'
   })
 }
 

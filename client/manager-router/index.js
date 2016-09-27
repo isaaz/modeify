@@ -77,6 +77,9 @@ p('/organizations/:organization/locations/:location/commuters/:commuter/(.*)', C
 p('/organizations/:organization/locations/:location/commuters/:commuter/show', require('../commuter-page'))
 p('/organizations/:organization/locations/:location/commuters/:commuter/edit', commuterForm)
 
+p('/organizations/:organization/commuters/:commuter/(.*)', Commuter.load)
+p('/organizations/:organization/commuters/:commuter/show', require('../commuter-page'))
+
 // Feedback
 
 p('/feedback', session.touch, redirectIfNotAdmin, require('../feedback-table-page'))

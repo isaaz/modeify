@@ -1,10 +1,18 @@
 <tr>
-  <td><a href="/manager/organizations/{organizationId}/locations/{locationId}/show">{name}</a></td>
-  <td data-text="fullAddress"></td>
-  <td>
-    <ul data-each="matches"></ul>
+  <td class="col-md-2"><a href="/manager/organizations/{organizationId}/locations/{locationId}/show">{name}</a></td>
+  <td class="col-md-2" data-text="fullAddress"></td>
+  <td class="col-md-4">
+    <table>
+      <tbody data-each="profile"></tbody>
+    </table>
+    <a class="btn btn-primary" style="margin-top: 8px;" href="{publicUrl}">
+      <i class="fa fa-globe"></i> View in Public Site
+    </a>
   </td>
-  <td class="text-right">
+  <td class="col-md-3">
+    <div data-each="matches"></div>
+  </td>
+  <td class="col-md-1" class="text-right">
     <button on-click="remove" class="btn btn-sm btn-danger"><i class="fa fa-close"></i></button>
   </td>
 </tr>
