@@ -224,8 +224,8 @@ Match.prototype.distanceMi = function () {
 }
 
 Match.prototype.commuterName = function () {
-  if (!this.model.givenName && !this.model.surname) return '(Unnamed Commuter)'
-  return this.model.givenName + ' ' + this.model.surname
+  if (!this.model.commuter.givenName && !this.model.commuter.surname) return '(Unnamed Commuter)'
+  return this.model.commuter.givenName + ' ' + this.model.commuter.surname
 }
 
 /** Location row **/
