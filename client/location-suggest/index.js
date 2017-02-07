@@ -54,9 +54,19 @@ LocationSuggest.prototype.renderSuggestions = function (input, suggestions) {
   var view = this
   var inputGroup = input.parentNode
   var suggestionList = inputGroup.getElementsByTagName('ul')[0]
+  this.canceled = false
 
   if (suggestions && suggestions.length > 0) {
+    if (typeof this.renderingSuggestions === 'function') {
+      this.renderingSuggestions(input)
+    }
     suggestions = suggestions.slice(0, 4)
+
+    // Add current location to end of suggestion list
+    suggestions.push({
+      id: 'current',
+      text: 'Current Location'
+    })
 
     suggestionList.innerHTML = suggestionsTemplate.render({
       suggestions: suggestions
@@ -86,25 +96,31 @@ LocationSuggest.prototype.renderSuggestions = function (input, suggestions) {
 
 LocationSuggest.prototype.blurInput = function (e) {
   log('input blurred, saving changes')
-
-  var inputGroup = e.target.parentNode
-  var suggestionList = inputGroup.getElementsByTagName('ul')[0]
-  inputGroup.classList.remove('suggestions-open')
-
-  var highlight = this.find('.suggestion.highlight')
-  if (highlight) {
-    e.target.value = cleanText(highlight.textContent || '')
-  }
-
-  suggestionList.classList.add('empty')
+  var self = this
 
   setTimeout(function () {
-    suggestionList.innerHTML = ''
+    if (self.canceled) return
+    var inputGroup = e.target.parentNode
+    var suggestionList = inputGroup.getElementsByTagName('ul')[0]
+    inputGroup.classList.remove('suggestions-open')
+
+    var highlight = self.find('.suggestion.highlight')
+    if (highlight) {
+      e.target.value = cleanText(highlight.textContent || '')
+    }
+
+    suggestionList.classList.add('empty')
+
+    setTimeout(function () {
+      suggestionList.innerHTML = ''
+    }, 250)
+
+    inputGroup.classList.remove('highlight')
+
+    self.locationSelected(e.target, e.target.value)
+
   }, 250)
 
-  inputGroup.classList.remove('highlight')
-
-  this.locationSelected(e.target, e.target.value)
 }
 
 /**
@@ -135,17 +151,26 @@ LocationSuggest.prototype.keydownInput = function (e) {
       var newHighlight = this.find('.suggestion.highlight')
       if (newHighlight) el.value = newHighlight.textContent || ''
       break
-    case 27:
-      var suggestionList = inputGroup.getElementsByTagName('ul')[0]
-      inputGroup.classList.remove('suggestions-open')
-      suggestionList.classList.add('empty')
-      setTimeout(function () {
-        suggestionList.innerHTML = ''
-      }, 250)
-      if (session && session.plan()) e.target.value = session.plan().get(e.target.name) || ''
-      else e.target.value = ''
+    case 27: // esc key
+      this.cancel(e.target)
       break
   }
+}
+
+LocationSuggest.prototype.cancel = function (inputEl) {
+  this.canceled = true
+  var inputGroup = inputEl.parentNode
+
+  var suggestionList = inputGroup.getElementsByTagName('ul')[0]
+  inputGroup.classList.remove('suggestions-open')
+  suggestionList.classList.add('empty')
+  setTimeout(function () {
+    suggestionList.innerHTML = ''
+  }, 250)
+  if (session && session.plan()) inputEl.value = session.plan().get(inputEl.name) || ''
+  else inputEl.value = ''
+
+  this.searchCanceled(inputEl)
 }
 
 /**

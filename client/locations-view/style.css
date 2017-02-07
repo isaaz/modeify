@@ -95,3 +95,41 @@
   border-left: 1px solid var(--font-light-color);
   border-right: 1px solid var(--font-light-color);
 }
+
+
+.Locations .lmenu {
+  position: absolute;
+  list-style-type: none;
+  right: 0;
+  background-color: #eee;
+  padding-left: 0;
+  border-bottom-left-radius: var(--border-radius);
+  box-shadow: -2px 2px 2px -1px color(var(--navbar-background-color) alpha(10%));
+  margin-top: -2px;
+  z-index: 10000000;
+  width: 240px;
+}
+
+.Locations .lmenu > li > a {
+  padding: 10px;
+  display: block;
+  color: #455a71;
+}
+
+.Locations .lmenu > li > a:hover {
+  color: #5a799b;
+}
+
+.Locations .lmenu > li:last-of-type a {
+  border-bottom: transparent;
+}
+
+.accs-logo {
+  display: inline-block;
+  margin-top: 4px;
+  background-image: url(/assets/images/graphics/accs-logo.png);
+  background-size: cover;
+  width: 16px;
+  height: 12px;
+  margin-right: 2px;
+}

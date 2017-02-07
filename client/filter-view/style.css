@@ -13,6 +13,11 @@
   font-weight: var(--font-weight);
 }
 
+.FilterView select {
+  color: black;
+  font-size: 12px;
+}
+
 @media (--narrow-window) {
   .FilterView > .time-filters > select {
     padding-left: 0;
