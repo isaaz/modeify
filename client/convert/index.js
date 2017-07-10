@@ -51,6 +51,14 @@ exports.caloriesToPounds = function (cals) {
 }
 
 /**
+ * Calories to kilograms
+ */
+
+exports.caloriesToKg = function (cals) {
+  return cals / 7000
+}
+
+/**
  * Number to short string
  */
 

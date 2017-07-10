@@ -31,7 +31,7 @@ var Plan = module.exports = model('Plan')
   .use(defaults({
     bike: true,
     bikeShare: true,
-    bikeSpeed: 8,
+    bikeSpeed: 14,
     bikeTrafficStress: 4,
     bus: true,
     car: true,
@@ -54,7 +54,7 @@ var Plan = module.exports = model('Plan')
     train: true,
     tripsPerYear: 235,
     walk: true,
-    walkSpeed: 3
+    walkSpeed: 4
   }))
   .attr('bike')
   .attr('bikeShare')
