@@ -24,6 +24,7 @@ module.exports.inHTML = function (view, filter) {
         translations[i].innerText =  tr
         translations[i].innerHTML = tmp
   }
+  return view
 }
 
 module.exports.attribute = function (view, filter, attribute) {
@@ -32,7 +33,8 @@ module.exports.attribute = function (view, filter, attribute) {
         //innerText Non supporté par Firefox ?
         if (translations[i][attribute]) translations[i][attribute] = _tr(translations[i][attribute], filter)
         else console.error("the element " + translations[i] + " has no attribute " + attribute)
-  }
+    }
+    return view
 }
 
 module.exports.stringOfHTML = function (htmlstr, strToReplace, limitStart, limitEnd){

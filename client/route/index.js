@@ -119,7 +119,7 @@ Route.prototype.setCarData = function (data) {
   }
 
   if (this.calories() !== 0) {
-    this.weightLost(parseInt(this.calories() * m, 10))
+    this.weightLost((convert.caloriesToKg(this.calories()) * m).toFixed(2), 10)
   }
 
   if (timeSavings > 60) {

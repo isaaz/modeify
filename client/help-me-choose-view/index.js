@@ -292,8 +292,43 @@ function toRGBA (rgb, opacity) {
  */
 
 function toCapitalCase (string) {
-  return string.replace(/(^|\s)(\w)/g, function (matches, previous, letter) {
+  return toNoCase(string).replace(/(^|\s)(\w)/g, function (matches, previous, letter) {
     return previous + letter.toUpperCase();
+  });
+}
+
+var hasCamel = /[a-z][A-Z]/;
+
+
+/**
+ * Remove any starting case from a `string`, like camel or snake, but keep
+ * spaces and punctuation that may be important otherwise.
+ *
+ * @param {String} string
+ * @return {String}
+ */
+
+function toNoCase (string) {
+  if (hasCamel.test(string)) string = uncamelize(string);
+  return string.toLowerCase();
+}
+
+
+/**
+ * Camelcase splitter.
+ */
+
+var camelSplitter = /(.)([A-Z]+)/g;
+/**
+ * Un-camelcase a `string`.
+ *
+ * @param {String} string
+ * @return {String}
+ */
+
+function uncamelize (string) {
+  return string.replace(camelSplitter, function (m, previous, uppers) {
+    return previous + ' ' + uppers.toLowerCase().split('').join(' ');
   });
 }
 
