@@ -22,6 +22,7 @@ var _tr = require('../translate')
 
 var FROM = config.geocode().start_address
 var TO = config.geocode().end_address
+var SKIPWELCOME = config.skipWelcomeFlow
 var isMobile = window.innerWidth <= 480
 
 var View = view(require('./template.html'), function (view, model) {
@@ -93,7 +94,7 @@ module.exports = function (ctx, next) {
     plan.clearStore()
 
     // If it's a shared URL or welcome is complete skip the welcome wizard
-    if (query.planFrom || query.planTo || (query.from && query.to) || session.commuter().profile().welcome_wizard_complete) {
+    if (SKIPWELCOME || query.planFrom || query.planTo || (query.from && query.to) || session.commuter().profile().welcome_wizard_complete) {
       showQuery(query)
     } else {
       showWelcomeWizard(session.commuter(), session.plan())
