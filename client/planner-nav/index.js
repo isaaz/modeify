@@ -50,11 +50,15 @@ View.prototype.hideMenu = function () {
   evnt.unbind(document.documentElement, 'click', this.hideMenu.bind(this))
 }
 
-View.prototype.showProfile = function (e) {
-  if (e) e.preventDefault()
-  this.hideMenu()
-  page('/profile')
-}
+/**
+ * N'utilise plus les comptes
+ *
+ *View.prototype.showProfile = function (e) {
+ *  if (e) e.preventDefault()
+ *  this.hideMenu()
+ *  page('/profile')
+ *}
+ */
 
 View.prototype.showAbout = function (e) {
   if (e) e.preventDefault()

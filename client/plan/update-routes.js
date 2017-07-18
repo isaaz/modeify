@@ -5,6 +5,9 @@ var message = require('../messages')('plan:update-routes')
 var request = require('../request')
 var Route = require('../route')
 var _tr = require('../translate')
+var fares = require('../fares')
+
+var METERS_TO_KILOMETERS = 0.001
 
 /**
  * Expose `updateRoutes`
@@ -123,7 +126,7 @@ function updateRoutes (plan, opts, callback) {
         profile[i].plan(plan)
 
         profile[i].setCarData({
-          cost: driveOption.cost(),
+          cost: driveOption.carCostYearly() + driveOption.parkingCost(),
           emissions: driveOption.emissions(),
           time: driveOption.average()
         })

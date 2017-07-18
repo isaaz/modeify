@@ -38,7 +38,9 @@
     "max time": "Durée maximale",
     "traffic stress tolerance": "adapté aux vélos",
     "speed": "vitesse",
+    "parking (daily)": "parking (quotidien)",
     "parking": "parking",
+    "parking (yearly)": "parking (annuel)",
     "per km": "par km",
     " Profile": " Profile",
     " Help": " Aide",
@@ -65,7 +67,7 @@
     "Gain": "Gagnez",
     "hour(s)": "heure(s)",
     "of productive time!": "de temps exploitable !",
-    "*estimated yearly": "*estimation annuelle",
+    "*estimated yearly (200 days, roundtrip)": "*estimation annuelle (200 jours, aller retour)",
     "Walk": "Marcher vers",
     "Take ": "Prendre ",
     "Rent bike from ": "Louer un vélo chez ",
@@ -136,5 +138,9 @@
     "without traffic": "sans circulation",
     "U-turn left": "virage en U à gauche",
     "U-turn right": "virage en U à droite",
-    "Bike Path": "Chemin pour vélo"
+    "Bike Path": "Chemin pour vélo",
+    " € de parking": " € de parking",
+    " € d'essences et d'entretien de voiture": " € d'essences et d'entretien de voiture",
+    " € de transport en commun": " € de transport en commun",
+    " € de location de vélo":  " € de location de vélo"
 }
