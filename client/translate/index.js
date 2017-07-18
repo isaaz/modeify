@@ -4,8 +4,8 @@ var langage = fr
 var _tr = module.exports = function (translate, filter) {
         if (arguments.length == 1 || arguments.length == 2) {
             if (langage[translate] || langage[translate] === "") return langage[translate]
-            if (translate !== " " && translate !=="" && !filter) console.log(translate + " is not registered")
-            if (translate !== " " && translate !=="" && filter) console.log(translate + " is not registered. Looking for filter " + filter)
+            //if (translate !== " " && translate !=="" && !filter) console.log(translate + " is not registered")
+            //if (translate !== " " && translate !=="" && filter) console.log(translate + " is not registered. Looking for filter " + filter)
 
             return translate
         }

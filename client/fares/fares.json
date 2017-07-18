@@ -1,0 +1,21 @@
+{
+    "bicycle_rent":{
+        "daily": 1.50,
+        "dailyRoundTrip": 1.5,
+        "yearly": 25,
+        "yearlyRoundTrip": 25
+    },
+    "parking":{
+        "daily": 10,
+        "yearly": 1000,
+        "increaseRoundTrip": 1 //coefficient multiplicatif du prix du parking en cas d'aller retour
+    },
+    "transit":{
+        "daily": 1.30,
+        "dailyRoundTrip": 1.86,
+        "yearly": 313.5,
+        "yearlyRoundTrip": 313.5
+    },
+    "carCostPerMiles": 0.56,
+    "tripPerYears": 400
+}

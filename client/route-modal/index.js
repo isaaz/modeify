@@ -54,7 +54,7 @@ RouteModal.prototype.routeSummarySegments = function () {
 }
 
 RouteModal.prototype.signUpForm = function () {
-  return new SignUpForm()
+  //return new SignUpForm()
 }
 
 RouteModal.prototype.routeResourcesView = function () {

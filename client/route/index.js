@@ -3,6 +3,7 @@ var model = require('component-model')
 var defaults = require('../components/segmentio/model-defaults/0.2.0')
 var each = require('component-each')
 var _tr = require('../translate')
+var fares = require('../fares')
 
 /**
  * MPS to MPH
@@ -39,11 +40,14 @@ var Route = module.exports = model('Route')
   .attr('access')
   .attr('bikeCalories')
   .attr('bikeDistance')
+  .attr('bikeRentalCostYearly')
   .attr('bikeTime')
   .attr('calories')
+  .attr('carCostYearly')
   .attr('cost')
   .attr('costPenalty')
   .attr('costSavings')
+  .attr('costTransit')
   .attr('departureTimes')
   .attr('driveDistance')
   .attr('egress')
@@ -55,8 +59,11 @@ var Route = module.exports = model('Route')
   .attr('hasRideshareMatches')
   .attr('hasTransit')
   .attr('modes')
+  .attr('parkingCost')
   .attr('plan')
   .attr('score')
+  .attr('showCongrats')
+  .attr('showPrice')
   .attr('stats')
   .attr('summary')
   .attr('time')
@@ -103,32 +110,61 @@ Route.prototype.rescore = function (scorer) {
 
 Route.prototype.setCarData = function (data) {
   var m = this.tripm()
-
-  var costDifference = (data.cost * m) - (this.cost() * m)
   var emissions = (data.emissions - this.emissions()) / data.emissions * 100
   var timeSavings = (this.timeInTransit() - (data.time - this.time())) * m
 
-  if (this.directCar()) {
-    costDifference = (data.cost * m) / 2
-    emissions = 50
-    timeSavings = (this.average() * m) / 2 // Assume split driving
-  }
-
-  if (costDifference > 0) {
-    this.costSavings(costDifference)
-  }
-
   if (this.calories() !== 0) {
     this.weightLost((convert.caloriesToKg(this.calories()) * m).toFixed(2), 10)
+  }
+
+  if (emissions > 0) {
+    this.emissionsDifference(parseInt(emissions, 10))
+  }
+
+  if (this.hasBikingRental()){
+    this.bikeRentalCostYearly(fares.bicycle_rent.yearlyRoundTrip)
+  }
+
+  if (this.hasTransit()){
+    this.costTransit(fares.transit.yearlyRoundTrip)
+  }
+  
+  if (this.directCar()) {
+    costDifference = 0
+    emissions = 0
+    timeSavings = 0
+    this.parkingCost(fares.parking.yearlyRoundTrip)
+    console.log(this.parkingCost())
   }
 
   if (timeSavings > 60) {
     this.timeSavings(parseInt(timeSavings / 60 / 60, 10))
   }
 
-  if (emissions > 0) {
-    this.emissionsDifference(parseInt(emissions, 10))
+  if (this.hasCar() || this.hasCarPark()){
+    this.carCostYearly((this.vmtRate() * this.driveDistance() * METERS_TO_KILOMETERS * m).toFixed(2))
   }
+  
+  var cost = (this.bikeRentalCostYearly() ? Number(this.bikeRentalCostYearly()) : 0)
+              + (this.costTransit() ? Number(this.costTransit()) : 0)
+              + (this.carCostYearly() ? Number(this.carCostYearly()) : 0)
+              + (this.parkingCost() ? Number(this.parkingCost()) : 0)
+  
+  var costDifference = data.cost - cost
+  if (costDifference > 0) {
+    this.costSavings(costDifference)
+  }
+
+  var congrats = this.costSavings() ? 1 : 0
+  congrats += this.weightLost() ? 1 : 0
+  congrats += this.timeSavings() ? 1 : 0
+  congrats += this.emissionsDifference() ? 1 : 0
+  var price = this.parkingCost() ? 1 : 0
+  price += this.carCostYearly() ? 1 : 0
+  price += this.costTransit() ? 1 : 0
+  price += this.bikeRentalCostYearly() ? 1 : 0
+  this.showCongrats(congrats)
+  this.showPrice(price)
 }
 
 /**
@@ -209,6 +245,10 @@ Route.prototype.hasBiking = function () {
   return this.modes().indexOf('bicycle') !== -1 || this.modes().indexOf('bicycle_rent') !== -1
 }
 
+Route.prototype.hasBikingRental = function () {
+  return this.modes().indexOf('bicycle_rent') !== -1
+}
+
 Route.prototype.hasWalking = function () {
   return this.modes().indexOf('walk') !== -1
 }
@@ -243,18 +283,24 @@ Route.prototype.calculatedCost = function () {
 }
 
 Route.prototype.costPerTrip = function () {
-  if (this.cost() === 0) {
+  if (this.cost() === 0 && !this.hasBikingRental() && !this.hasTransit()) {
     return false
   }
 
   var cost = 0
-  if (this.transitCost()) {
+  if (this.hasTransit()) {
+    this.attrs.transitCost = fares.transit.daily
     cost += this.transitCost()
   }
+  if (this.hasBikingRental()){
+    this.attrs.bikeRentalCost = fares.bicycle_rent.daily
+    cost += this.attrs.bikeRentalCost
+  }
   if (this.hasCar() || this.hasCarPark()) {
-    if (this.hasCarPark()) console.log(this)
     this.attrs.carCost = this.vmtRate() * this.driveDistance() * METERS_TO_KILOMETERS
-    if (this.hasCar()) this.attrs.carCost += this.carParkingCost() //TL On suppose que le prix du parking est inclus dans le prix du transport en commun pour car_park 23/06/2017
+    if (this.hasCar()) {
+      cost += fares.parking.daily //TL On suppose que le prix du parking est inclus dans le prix du transport en commun pour car_park 23/06/2017
+    }
     cost +=  this.attrs.carCost
   }
 

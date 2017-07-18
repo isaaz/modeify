@@ -1,8 +1,13 @@
 ﻿<div class="RouteComparisonTable">
-  <p>Congrats! Compared to driving solo, you:</p>
+  <p data-visible="showCongrats">Congrats! Compared to driving solo, you:</p>
   <div class="savings compare-item" data-visible="costSavings"><div class="category-icon money-icon"></div> <span class="compare">Save</span> <strong>{costSavings} <span class="compare">€</span></strong> <span class="compare">on traveling!</span></div>
   <div class="weightlost compare-item" data-visible="weightLost"><div class="category-icon scale-icon"></div> <span class="compare">Lose</span> <strong>{weightLost} <span class="compare">lbs</span></strong> <span class="compare">from exercise!</span></div>
   <div class="emissions compare-item" data-visible="emissionsDifference"><div class="category-icon leaf-icon"></div> <span class="compare">Reduce CO2 emissions by</span> <strong>{emissionsDifference}%</strong>!</div>
   <div class="personal-time compare-item" data-visible="timeSavings"><div class="category-icon fa fa-leanpub"></div> <span class="compare">Gain</span> <strong>{timeSavings} <span class="compare">hour(s)</span></strong> <span class="compare">of productive time!</span></div>
-  <div class="footnote">*estimated yearly</div>
+  <p data-visible="showPrice">Vous payez pour ce trajet </p>
+  <div class="savings compare-item" data-visible="parkingCost">{parkingCost}<span class="compare"> € de parking</span></div>
+  <div class="savings compare-item" data-visible="carCostYearly">{carCostYearly}<span class="compare"> € d'essences et d'entretien de voiture</span></div>
+  <div class="savings compare-item" data-visible="costTransit">{costTransit}<span class="compare"> € de transport en commun</span></div>
+  <div class="savings compare-item" data-visible="bikeRentalCostYearly">{bikeRentalCostYearly}<span class="compare"> € de location de vélo</span></div>
+  <div class="footnote">*estimated yearly (200 days, roundtrip)</div>
 </div>

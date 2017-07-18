@@ -8,9 +8,12 @@ var routeResource = require('../route-resource')
 var routeSummarySegments = require('../route-summary-segments')
 var session = require('../session')
 var _tr = require('../translate')
+var fares = require('../fares')
 
 var optionTemplate = hogan.compile(require('./option.html'))
 var routeTemplate = hogan.compile(require('./route.html'))
+
+var METERS_TO_KILOMETERS = 0.001
 
 var primaryFilter = 'totalCost'
 var secondaryFilter = 'productiveTime'
@@ -99,7 +102,7 @@ Modal.prototype.refresh = function (e) {
 
   // Get the multiplier
   var multiplier = this.oneWay ? 1 : 2
-  multiplier *= this.daily ? 1 : 365
+  multiplier *= this.daily ? 1 : 200
 
   // Get the route data
   var routes = this.model.map(function (r, index) {
@@ -354,10 +357,41 @@ function getRouteData (route, multiplier, index) {
   }
 
   if (multiplier > 1) {
-    ['cost', 'calories', 'productiveTime', 'emissions'].forEach(function (type) {
+    ['calories', 'productiveTime', 'emissions'].forEach(function (type) {
       data[type] = data[type] * multiplier
     })
+    var daily = true
+    var roundTrip = false
+    if (multiplier == 2){
+      daily=true
+      roundTrip=true
+    }
+    if (multiplier > 150 && multiplier < 367){
+      daily=false
+      roundTrip=false
+    }
+    if (multiplier >= 368){
+      daily=false
+      roundTrip=true
+    }
+    var cost = 0
+    var day = daily ? "daily" : "yearly"
+    var trip = roundTrip ? "RoundTrip" : ""
+    var selector = day + trip
+    if (route.hasTransit()) {
+      cost += fares.transit[selector]
+    }
+    if (route.hasBikingRental()){
+      cost += fares.bicycle_rent[selector]
+    }
+    if (route.hasCar() || route.hasCarPark()) {
+    if (route.hasCar()) {
+      cost += fares.parking[selector]
+      }
+      cost +=  route.vmtRate() * route.driveDistance() * METERS_TO_KILOMETERS * multiplier
+    
+    }
+    if (cost) data.cost = cost
   }
-
   return data
 }

@@ -15,6 +15,7 @@ var qs = require('component-querystring')
 var loadPlan = require('./load')
 var store = require('./store')
 var updateRoutes = require('./update-routes')
+var fares = require('../fares')
 
 /**
  * Debounce updates to once every 50ms
@@ -36,6 +37,7 @@ var Plan = module.exports = model('Plan')
     bus: true,
     car: true,
     carParkingCost: 10,
+    carParkingCostYearly: 1000,
     carCostPerMile: 0.56,
     days: 'M—F',
     end_time: 9,
@@ -52,7 +54,7 @@ var Plan = module.exports = model('Plan')
     to: '',
     to_valid: false,
     train: true,
-    tripsPerYear: 235,
+    tripsPerYear: fares.tripPerYears,
     walk: true,
     walkSpeed: 4
   }))
@@ -63,6 +65,7 @@ var Plan = module.exports = model('Plan')
   .attr('bus')
   .attr('car')
   .attr('carParkingCost')
+  .attr('carParkingCostYearly')
   .attr('carCostPerMile')
   .attr('days')
   .attr('end_time')

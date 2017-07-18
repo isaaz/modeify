@@ -3,6 +3,7 @@ var reactiveSelect = require('../reactive-select')
 var view = require('../view')
 var session = require('../session')
 var _tr = require('../translate')
+var fares = require('../fares')
 
 var View = module.exports = view(require('./template.html'), function (view, plan) {
   _tr.inHTML(view, "option")
@@ -89,7 +90,7 @@ View.prototype.hideSettings = function () {
 }
 
 View.prototype.save = debounce(function (e) {
-  var names = ['maxBikeTime', 'maxWalkTime', 'carParkingCost', 'carCostPerMile']
+  var names = ['maxBikeTime', 'maxWalkTime', 'carParkingCost', 'carParkingCostYearly', 'carCostPerMile']
   var self = this
   var values = {}
   names.forEach(function (n) {
@@ -97,7 +98,9 @@ View.prototype.save = debounce(function (e) {
   })
   var scorer = this.model.scorer()
   scorer.rates.carParkingCost = values.carParkingCost
+  scorer.rates.carParkingCostYearly = values.carParkingCostYearly || 1000
   scorer.rates.mileageRate = values.carCostPerMile
+  fares.setValues(values)
   this.model.set(values)
   this.model.updateRoutes()
   this.saveProfile()
@@ -115,6 +118,7 @@ View.prototype.saveProfile = function () {
       customData.modeify_opts.maxBikeTime = self.model.maxBikeTime()
       customData.modeify_opts.maxWalkTime = self.model.maxWalkTime()
       customData.modeify_opts.carParkingCost = self.model.carParkingCost()
+      customData.modeify_opts.carParkingCostYearly = self.model.carParkingCostYearly()
       customData.modeify_opts.carCostPerMile = self.model.carCostPerMile()
       customData.modeify_opts.bikeTrafficStress = self.model.bikeTrafficStress()
 
