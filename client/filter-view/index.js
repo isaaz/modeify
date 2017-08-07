@@ -4,6 +4,7 @@ var view = require('../view')
 var session = require('../session')
 var _tr = require('../translate')
 var fares = require('../fares')
+var pollution = require('../pollution')
 
 var View = module.exports = view(require('./template.html'), function (view, plan) {
   _tr.inHTML(view, "option")

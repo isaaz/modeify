@@ -81,7 +81,61 @@ function updateRoutes (plan, opts, callback) {
     } else { // both returned, look for defaultRouter setting in localStorage
       journeys = window.localStorage.getItem('defaultRouter') === 'otp' ? results.otp : results.r5
     }
+    /**
+     * set prices for car, bycicle rent and transit
+     */
+    if (journeys){
+      for (var i=0; i<journeys.profile.length; i++){
+        // gestion des bus stan, sub et ted. stan a des bus, sub et ted des cars
+        if (journeys.profile[i].modes.indexOf('bus') !== -1){
+          journeys.profile[i].costTransit = fares.transit.yearlyRoundTrip
+          journeys.profile[i].timeInBus = 0
+          journeys.profile[i].timeInSub = 0
+          journeys.profile[i].timeInTed = 0
+          for (var j = 0; j < journeys.profile[i].transit.length; j++){
+            if (journeys.profile[i].transit[j].routes[0].mode == 'BUS') {
+              if (journeys.profile[i].transit[j].routes[0].agencyName.toLowerCase() == 'sub') {
+                journeys.profile[i].timeInSub += journeys.profile[i].transit[j].rideStats.avg
+              }
+              else if (journeys.profile[i].transit[j].routes[0].agencyName.toLowerCase() == 'ted') {
+                journeys.profile[i].timeInTed += journeys.profile[i].transit[j].rideStats.avg
+              }
+              else { // Toutes les autres agences sont considérées comme étant STAN
+                journeys.profile[i].timeInBus += journeys.profile[i].transit[j].rideStats.avg  
+              }
+            } 
+          }
+        }
 
+        if (journeys.profile[i].modes.indexOf('tram') !== -1){
+          journeys.profile[i].costTransit = fares.transit.yearlyRoundTrip
+          journeys.profile[i].timesInTram = 0
+          for (var j = 0; j < journeys.profile[i].transit.length; j++){
+            if (journeys.profile[i].transit[j].routes[0].mode == 'tram') journeys.profile[i].timesInTram += journeys.profile[i].transit[j].rideStats.avg
+          }
+        }
+
+        if (journeys.profile[i].modes.indexOf('rail') !== -1){
+          journeys.profile[i].costTransit = fares.transit.yearlyRoundTrip
+          journeys.profile[i].timeInTrain = 0
+          for (var j = 0; j < journeys.profile[i].transit.length; j++){
+            if (journeys.profile[i].transit[j].routes[0].mode == 'RAIL') journeys.profile[i].timeInTrain += journeys.profile[i].transit[j].rideStats.avg
+          }
+        }
+
+        if (journeys.profile[i].modes.indexOf('bicycle_rent') !== -1){
+          journeys.profile[i].bikeRentalCostYearly = fares.bicycle_rent.yearlyRoundTrip
+        }
+
+        if (journeys.profile[i].modes.indexOf('car') !== -1 || journeys.profile[i].modes.indexOf('car_park') !== -1){
+          journeys.profile[i].carCostYearly = fares.carCostPerMiles * journeys.profile[i].driveDistance * METERS_TO_KILOMETERS * fares.tripPerYears
+          if (journeys.profile[i].modes.indexOf('car') !== -1){
+            journeys.profile[i].parkingCost = fares.parking.yearlyRoundTrip
+          }
+        }
+      }
+    }
+    
     const profile = journeys ? journeys.profile : []
     if (err) {
       done(err, res)
@@ -152,7 +206,8 @@ function generateErrorMessage (plan, response) {
   if (responseText.indexOf('VertexNotFoundException') !== -1) {
     msg += _tr('The <strong>')
     msg += responseText.indexOf('[from]') !== -1 ? _tr('from ') : _tr('to ')
-    msg += _tr('</strong>address entered is outside the supported region.')
+    msg += '</strong>'
+    msg += _tr('address entered is outside the supported region.')
   } else if (!plan.validCoordinates()) {
     msg += plan.coordinateIsValid(plan.from_ll()) ? _tr('To') : _tr('From')
     msg += _tr(' address could not be found. Please enter a valid address.')
