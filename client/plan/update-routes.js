@@ -1,4 +1,4 @@
-var analytics = require('../analytics')
+﻿var analytics = require('../analytics')
 var haversine = require('../components/trevorgerhardt/haversine/master')
 var log = require('../log')('plan:update-routes')
 var message = require('../messages')('plan:update-routes')

@@ -10,6 +10,7 @@ var View = module.exports = view(require('./template.html'), function (view, pla
   _tr.inHTML(view, ".btn-dark")
   _tr.inHTML(view, "label")
   view.reactive.use(reactiveSelect)
+  view.showSettings()
   view.on('active', function () {
     plan.updateRoutes()
   })
@@ -33,15 +34,6 @@ View.prototype.bikeSpeeds = function () {
     return {
       name: s + ' km/h',
       value: s
-    }
-  })
-}
-
-View.prototype.bikeTrafficStressLevels = function () {
-  return [1, 2, 3, 4].map(function (l) {
-    return {
-      name: 'Level ' + l,
-      value: l
     }
   })
 }
@@ -90,12 +82,17 @@ View.prototype.hideSettings = function () {
 }
 
 View.prototype.save = debounce(function (e) {
-  var names = ['maxBikeTime', 'maxWalkTime', 'carParkingCost', 'carParkingCostYearly', 'carCostPerMile']
+  var names = ['maxBikeTime', 'maxWalkTime', 'carParkingCost', 'carParkingCostYearly', 'carCostPerMile', 'bikeSafe', 'bikeSlope', 'bikeTime']
   var self = this
   var values = {}
   names.forEach(function (n) {
     values[n] = parseFloat(self.find('input[name=' + n + ']').value)
   })
+  var percentage = getPercentage(values['bikeSafe'], values['bikeSlope'], values['bikeTime'])
+  values.bikeSafe = percentage.bikeSafe
+  values.bikeSlope = percentage.bikeSlope
+  values.bikeTime = percentage.bikeTime
+  pollution.setCar(self.find('select[name=carType]').value)
   var scorer = this.model.scorer()
   scorer.rates.carParkingCost = values.carParkingCost
   scorer.rates.carParkingCostYearly = values.carParkingCostYearly || 1000
@@ -120,10 +117,47 @@ View.prototype.saveProfile = function () {
       customData.modeify_opts.carParkingCost = self.model.carParkingCost()
       customData.modeify_opts.carParkingCostYearly = self.model.carParkingCostYearly()
       customData.modeify_opts.carCostPerMile = self.model.carCostPerMile()
-      customData.modeify_opts.bikeTrafficStress = self.model.bikeTrafficStress()
+      customData.modeify_opts.bikeSafe = self.model.bikeSafe()
+      customData.modeify_opts.bikeSlope = self.model.bikeSlope()
+      customData.modeify_opts.bikeTime = self.model.bikeTime()
 
       session.user().customData(customData)
       session.user().saveCustomData(function () {}) // TODO: handle error
     }, 1000)
   }
+}
+
+//ensure bike safe, slope and time are a percentage
+function getPercentage(safe, slope, time){
+  if (safe < 0) safe = 0
+  if (slope < 0) slope = 0
+  if (time < 0) time = 0
+  var total = safe + slope + time
+  if (total) { //pas de division par 0
+    safe = Math.floor(100 * safe / total)
+    slope = Math.floor(100 * slope / total)
+    time = Math.floor(100 * time / total)
+  }
+  else {
+    safe = 33
+    slope = 33
+    time = 34
+  }
+  while (safe + slope + time !== 100){
+    if (safe + slope + time > 100){
+      if (safe > 0) safe--
+      else if (slope > 0) slope--
+      else time--
+    }
+    if (safe + slope + time < 100){
+      if (safe < 100) safe++
+      else if (slope < 100) slope++
+      else time++
+    }
+  }
+  var percent = {}
+  percent.bikeSafe = safe
+  percent.bikeSlope = slope
+  percent.bikeTime = time
+  return percent
 }
