@@ -141,6 +141,8 @@ Route.prototype.setCarData = function (data) {
     this.timeSavings(parseInt(this.timeSavings() / 60 / 60, 10))
   }
 
+  //if (this.timeSavings() < 0) this.timeSavings(0)
+
   if (this.hasCar() || this.hasCarPark()){
     this.carCostYearly((this.vmtRate() * this.driveDistance() * METERS_TO_KILOMETERS * m).toFixed(2))
   }
@@ -495,7 +497,7 @@ function walkingCaloriesBurned (mps, wkg, hours) {
   var kph = mps / 1000 * 60 * 60
   var kph2 = kph * kph
   var kph3 = kph2 * kph
-  return ((0.0215 * kph3) - (0.1765 * kph2) + (0.8710 * kph)) * wkg * hours
+  return ((0.0215 * kph3) - (0.1765 * kph2) + (0.8710 * kph) + 1.4577) * wkg * hours
 }
 
 /**
