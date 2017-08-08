@@ -110,15 +110,16 @@ Route.prototype.rescore = function (scorer) {
 
 Route.prototype.setCarData = function (data) {
   var m = this.tripm()
-  var emissions = (data.emissions - this.emissions()) / data.emissions * 100
-  var timeSavings = (this.timeInTransit() - (data.time - this.time())) * m
+  this.emissions((data.emissions - this.emissions()) / data.emissions * 100)
+  this.timeSavings(this.timeInTransit() + (data.time - Math.round(this.time() / 60)))
+  
 
   if (this.calories() !== 0) {
     this.weightLost((convert.caloriesToKg(this.calories()) * m).toFixed(2), 10)
   }
 
-  if (emissions > 0) {
-    this.emissionsDifference(parseInt(emissions, 10))
+  if (this.emissions() > 0) {
+    this.emissionsDifference(parseInt(this.emissions(), 10))
   }
 
   if (this.hasBikingRental()){
@@ -131,15 +132,16 @@ Route.prototype.setCarData = function (data) {
   
   if (this.directCar()) {
     costDifference = 0
-    emissions = 0
-    timeSavings = 0
+    this.emissions(0)
+    this.timeSavings(0)
     this.parkingCost(fares.parking.yearlyRoundTrip)
-    console.log(this.parkingCost())
   }
 
-  if (timeSavings > 60) {
-    this.timeSavings(parseInt(timeSavings / 60 / 60, 10))
+  if (this.timeSavings() > 60) {
+    this.timeSavings(parseInt(this.timeSavings() / 60 / 60, 10))
   }
+
+  //if (this.timeSavings() < 0) this.timeSavings(0)
 
   if (this.hasCar() || this.hasCarPark()){
     this.carCostYearly((this.vmtRate() * this.driveDistance() * METERS_TO_KILOMETERS * m).toFixed(2))
@@ -495,7 +497,7 @@ function walkingCaloriesBurned (mps, wkg, hours) {
   var kph = mps / 1000 * 60 * 60
   var kph2 = kph * kph
   var kph3 = kph2 * kph
-  return ((0.0215 * kph3) - (0.1765 * kph2) + (0.8710 * kph)) * wkg * hours
+  return ((0.0215 * kph3) - (0.1765 * kph2) + (0.8710 * kph) + 1.4577) * wkg * hours
 }
 
 /**

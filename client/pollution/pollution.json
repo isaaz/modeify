@@ -1,0 +1,36 @@
+// données en grammes de CO2/PM10/NOx par km et par personnes
+{
+    "co2": {
+        "voiture" : {
+            "electrique" : 0,
+            "diesel" : 120,
+            "hybride" : 100,
+            "essence" : 120
+        },
+        "train" : 43,
+        "bus" : 110,
+        "coach" : 80 // ou pas
+    },
+    "pm10": {
+        "voiture" : {
+            "electrique" : 0.005,
+            "diesel" : 0.04,
+            "hybride" : 0.01,
+            "essence" : 0.02
+        },
+        "train" : 43,
+        "bus" : 0.25,
+        "coach" : 0.25
+    },
+    "nox": {
+        "voiture" : {
+            "electrique" : 0,
+            "diesel" : 0.4,
+            "hybride" : 0.2,
+            "essence" : 0.2
+        },
+        "train" : 43,
+        "bus" : 4.9,
+        "coach" : 4.9
+    }
+}

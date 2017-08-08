@@ -41,10 +41,18 @@
         <input name="maxBikeTime" type="text" placeholder="min" data-value="maxBikeTime" on-change="save"></input>
         <span> min</span>
 	  </div>
-      <div>
-        <label>traffic stress tolerance</label>
-        <select select-value="bikeTrafficStress" select-options="bikeTrafficStressLevels" select-parse-value="parseInt" on-change="saveProfile"></select>
-      </div>
+    <div>
+      <label>Bike Safe</label>
+      <input name="bikeSafe" type="text" placeholder="min" data-value="bikeSafe" on-change="save">%</input>
+    </div>
+    <div>
+      <label>Bike Slope</label>
+      <input name="bikeSlope" type="text" placeholder="min" data-value="bikeSlope" on-change="save">%</input>
+    </div>
+    <div>
+      <label>Bike Time</label>
+      <input name="bikeTime" type="text" placeholder="min" data-value="bikeTime" on-change="save">%</input>
+    </div>
     </div>
     <div class="ExpandedSettings-walk">
 	  <div>
@@ -72,6 +80,15 @@
 	    <div>
         <label>per km</label>
         <input name="carCostPerMile" type="text" placeholder="€" data-value="carCostPerMile" on-change="save">€</input>
+      </div>
+      <div>
+        <label>voiture </label>
+        <select name="carType" size="1" data-value="carType" on-change="save">
+          <option value="diesel">diesel
+          <option value="essence">essence
+          <option value="electrique">électrique
+          <option value="hybride">hybride
+        </select>
       </div>
     </div>
   </div>

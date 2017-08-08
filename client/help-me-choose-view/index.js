@@ -9,6 +9,7 @@ var routeSummarySegments = require('../route-summary-segments')
 var session = require('../session')
 var _tr = require('../translate')
 var fares = require('../fares')
+var pollution = require('../pollution')
 
 var optionTemplate = hogan.compile(require('./option.html'))
 var routeTemplate = hogan.compile(require('./route.html'))
@@ -34,6 +35,15 @@ var filters = {
   productiveTime: function (a) {
     return -a.productiveTime
   },
+  weightLost: function (a) {
+    return -a.weightLost
+  },
+  timeSavings: function (a) {
+    return -a.timeSavings
+  },
+  emissions: function (a) {
+    return -a.emissions
+  },
   none: function (a) {
     return 0
   }
@@ -45,7 +55,7 @@ var filters = {
 
 var Modal = module.exports = modal({
   closable: true,
-  width: '768px',
+  width: '868px',
   template: require('./template.html')
 }, function (view, routes) {
   view.primaryFilter = view.find('#primary-filter')
@@ -102,7 +112,7 @@ Modal.prototype.refresh = function (e) {
 
   // Get the multiplier
   var multiplier = this.oneWay ? 1 : 2
-  multiplier *= this.daily ? 1 : 200
+  multiplier *= this.daily ? 1 : fares.tripPerYears/2
 
   // Get the route data
   var routes = this.model.map(function (r, index) {
@@ -140,9 +150,12 @@ Modal.prototype.refresh = function (e) {
 Modal.prototype.renderRoute = function (data) {
   data.calories = data.calories ? parseInt(data.calories, 10).toLocaleString() + ' cals' : _tr('None')
   data.cost = data.cost ? data.cost.toFixed(2) + ' €' : _tr('Free')
-  data.emissions = data.emissions ? parseInt(data.emissions, 10) : 'None'
-  data.walkDistance = data.walkDistance ? data.walkDistance + ' m' : 'None'
-
+  data.emissions = data.emissions ? parseInt(data.emissions, 10) + ' g' : _tr('None')
+  data.emissionsNOx = data.emissionsNOx ? parseInt(data.emissionsNOx * 10, 10) / 10 + ' g' : _tr('None')
+  data.emissionsPM10 = data.emissionsPM10 ? parseInt(data.emissionsPM10 * 100, 10) / 100 + ' g' : _tr('None')
+  data.walkDistance = data.walkDistance ? data.walkDistance + ' m' : _tr('None')
+  data.weightLost = data.weightLost ? Math.round(data.weightLost * 100) / 100 + ' g' : _tr('None')
+  
   if (data.productiveTime) {
     if (data.productiveTime > 120) {
       data.productiveTime = parseInt(data.productiveTime / 60, 10).toLocaleString() + ' hrs'
@@ -151,6 +164,15 @@ Modal.prototype.renderRoute = function (data) {
     }
   } else {
     data.productiveTime = _tr('None')
+  }
+  if (data.timeSavings) {
+    if (data.timeSavings > 120) {
+      data.timeSavings = parseInt(data.timeSavings / 60, 10).toLocaleString() + ' hrs'
+    } else {
+      data.timeSavings = parseInt(data.timeSavings, 10).toLocaleString() + ' min'
+    }
+  } else {
+    data.timeSavings = _tr('None')
   }
   var tmpTemplate = routeTemplate.render(data)
   tmpTemplate = _tr.stringOfHTML(tmpTemplate, 'select', 0)
@@ -336,6 +358,27 @@ function uncamelize (string) {
 }
 
 /**
+ * get CO2 production
+ */
+ function getEmissions(route){
+   return pollution.getCarCO2Pollution(route) + pollution.getBusCO2Pollution(route) + pollution.getCoachCO2Pollution(route) + pollution.getTrainCO2Pollution(route)
+ }
+
+/**
+ * get NOx production
+ */
+ function getEmissionsNOx(route){
+   return pollution.getCarNOxPollution(route) + pollution.getBusNOxPollution(route) + pollution.getCoachNOxPollution(route) + pollution.getTrainNOxPollution(route)
+ }
+
+/**
+ * get PM10 production
+ */
+ function getEmissionsPM10(route){
+   return pollution.getCarPM10Pollution(route) + pollution.getBusPM10Pollution(route) + pollution.getCoachPM10Pollution(route) + pollution.getTrainPM10Pollution(route)
+ }
+
+/**
  * Get route data
  */
 
@@ -350,14 +393,18 @@ function getRouteData (route, multiplier, index) {
     cost: route.cost(),
     walkDistance: route.walkDistances(),
     calories: route.totalCalories(),
+    weightLost: 1000 * route.weightLost() / route.tripm(), 
     productiveTime: route.timeInTransit(),
-    emissions: route.emissions(),
+    timeSavings: route.timeSavings(),
+    emissions: getEmissions(route),
+    emissionsNOx: getEmissionsNOx(route),
+    emissionsPM10: getEmissionsPM10(route),
     score: route.score(),
     rank: 0
   }
 
   if (multiplier > 1) {
-    ['calories', 'productiveTime', 'emissions'].forEach(function (type) {
+    ['calories', 'weightLost', 'productiveTime', 'timeSavings', 'emissions', 'emissionsNOx', 'emissionsPM10'].forEach(function (type) {
       data[type] = data[type] * multiplier
     })
     var daily = true

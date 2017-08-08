@@ -27,31 +27,39 @@ function constructMapboxUrl (tileset) {
 
 module.exports = function (el) {
   try {
+    var defaultBaseLayer
+    var baseLayers = {}
     // create the map
-    var map = L.map(el, {
+    for(var i=0; i<Object.keys(config.baseLayers()).length; i++) {
+      var layerConfig = config.baseLayers()["map" + i];
+      var layerProps = { };
+      if(layerConfig.attribution) layerProps['attribution'] = layerConfig.attribution;
+      if(layerConfig.subdomains) layerProps['subdomains'] = layerConfig.subdomains;
+      if(layerConfig.type) layerProps['type'] = layerConfig.type;
+      var layer = new L.TileLayer(layerConfig.tileUrl, layerProps);
+      baseLayers[layerConfig.name] = layer;
+      if(i == 0) defaultBaseLayer = layer;           
+      if(typeof layerConfig.getTileUrl != 'undefined') {
+        layer.getTileUrl = layerConfig.getTileUrl;
+      }
+    }
+
+    var mapProps = { 
       attributionControl: {
         compact: true,
         position: 'bottomleft'
       },
+      layers  : [ defaultBaseLayer ],
+      center : new L.LatLng(config.geocode().center.split(",")[0], config.geocode().center.split(",")[1]),
+      zoomControl : false,
       inertia: false,
-      zoomAnimation: false
-    }).setView([center[1], center[0]], config.geocode().zoom)
-
-    // add the base layer tileset
-    L.tileLayer(constructMapboxUrl(config.mapbox_base_style())).addTo(map)
-
-    // add a custom pane for the layers
-	//TL 06/06/2017 Appears above itinerary
-    /*map.createPane('labels')
-
-    // this pane is above overlays but below popups
-    map.getPane('labels').style.zIndex = 650
-
-    // layers in this pane are non-interactive and do not obscure mouse/touch events
-    map.getPane('labels').style.pointerEvents = 'none'
-
-    // add the labels layer to the labels pane
-    L.tileLayer(constructMapboxUrl(config.mapbox_label_style()), { pane: 'labels' }).addTo(map)*/
+      zoomAnimation: false,
+      minZoom: 12,
+      maxZoom: 18
+    }
+    
+    var map = new L.Map(el, mapProps).setView([center[1], center[0]], config.geocode().zoom);
+    var layer_control = L.control.layers(baseLayers).addTo(map);
   } catch (err) {
     console.log(err)
   }

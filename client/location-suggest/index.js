@@ -4,6 +4,7 @@ var log = require('../log')('location-suggest')
 var each = require('component-each')
 var throttle = require('throttleit')
 var session = require('../session')
+var Promise = require('bluebird');
 
 module.exports = LocationSuggest
 
@@ -122,6 +123,11 @@ LocationSuggest.prototype.keydownInput = function (e) {
   switch (key) {
     case 13: // enter key
       e.preventDefault()
+      function getPromise(){
+        var p = useFirstSuggestion(e.target, this)
+        return p
+      }
+      var p = getPromise()
       this.blurInput(e)
       break
     case 38: // up key
@@ -205,4 +211,24 @@ function setCursor (node, pos) {
 function cleanText (text) {
   text = text.replace(/<\/?[^>]+(>|$)/g, '')
   return text.trim()
+}
+
+
+
+function useFirstSuggestion (el, view) {
+  var prevText = el.value
+  var p = new Promise(function(resolve, reject){
+    geocode.suggest(prevText, function(err, res){
+      if (res.length > 0) {
+        var newText = res[0].text
+        el.value = newText
+      }
+      resolve(el.value)
+    })
+  }).
+  then(function(result) {
+    document.getElementById("search-button").click();
+    return result
+  });
+  return p
 }
