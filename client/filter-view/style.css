@@ -144,3 +144,18 @@
 .ExpandedSettings.open .ExpandedSettings-walk {
   display: block;
 }
+
+input[type="range"] {
+  display: inline-block;margin-right:10px;
+  -webkit-appearance: none;
+	-moz-appearance: none;
+	background: #999;
+	border-radius: 5px;
+  width: 80%;
+  height: 1px;
+  outline: 0;
+}
+
+.valueTriangle{
+  display: inline-block;
+}
