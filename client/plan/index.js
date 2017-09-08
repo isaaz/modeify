@@ -15,6 +15,7 @@ var qs = require('component-querystring')
 var loadPlan = require('./load')
 var store = require('./store')
 var updateRoutes = require('./update-routes')
+var fares = require('../fares')
 
 /**
  * Debounce updates to once every 50ms
@@ -31,11 +32,14 @@ var Plan = module.exports = model('Plan')
   .use(defaults({
     bike: true,
     bikeShare: true,
-    bikeSpeed: 8,
-    bikeTrafficStress: 4,
+    bikeSpeed: 14,
+    bikeSafe: 33,
+    bikeSlope: 33,
+    bikeTime: 34,
     bus: true,
     car: true,
     carParkingCost: 10,
+    carParkingCostYearly: 1000,
     carCostPerMile: 0.56,
     days: 'M—F',
     end_time: 9,
@@ -52,17 +56,20 @@ var Plan = module.exports = model('Plan')
     to: '',
     to_valid: false,
     train: true,
-    tripsPerYear: 235,
+    tripsPerYear: fares.tripPerYears,
     walk: true,
-    walkSpeed: 3
+    walkSpeed: 4
   }))
   .attr('bike')
   .attr('bikeShare')
   .attr('bikeSpeed')
-  .attr('bikeTrafficStress')
+  .attr('bikeSafe')
+  .attr('bikeSlope')
+  .attr('bikeTime')
   .attr('bus')
   .attr('car')
   .attr('carParkingCost')
+  .attr('carParkingCostYearly')
   .attr('carCostPerMile')
   .attr('days')
   .attr('end_time')
@@ -283,7 +290,7 @@ Plan.prototype.modesCSV = function () {
   if (this.bike()) modes.push('BICYCLE')
   if (this.bikeShare()) modes.push('BICYCLE_RENT')
   if (this.bus()) modes.push('BUS')
-  if (this.train()) modes.push('TRAINISH')
+  if (this.train()) modes.push('RAIL,SUBWAY,TRAM') //TL 06/06/2017 Trainish n'existe plus
   if (this.walk()) modes.push('WALK')
   if (this.car()) modes.push('CAR')
 
@@ -301,7 +308,9 @@ Plan.prototype.setModes = function (csv) {
   this.bike(modes.indexOf('BICYCLE') !== -1)
   this.bikeShare(modes.indexOf('BICYCLE_RENT') !== -1)
   this.bus(modes.indexOf('BUS') !== -1)
-  this.train(modes.indexOf('TRAINISH') !== -1)
+  this.train(modes.indexOf('RAIL') !== -1)
+  this.train(modes.indexOf('TRAM') !== -1)
+  this.train(modes.indexOf('SUBWAY') !== -1)
   this.car(modes.indexOf('CAR') !== -1)
 }
 
@@ -336,7 +345,7 @@ Plan.prototype.generateQuery = function () {
     accessModes.push('CAR_PARK')
     directModes.push('CAR')
   }
-  if (this.train()) transitModes.push('TRAINISH')
+  if (this.train()) transitModes.push('RAIL,SUBWAY,TRAM')//TL 06/06/2017 Trainish n'existe plus
 
   var startTime = this.start_time()
   var endTime = this.end_time()
@@ -347,9 +356,10 @@ Plan.prototype.generateQuery = function () {
 
   return {
     accessModes: accessModes.join(','),
-    bikeSafe: 1000,
+    bikeSafe: this.bikeSafe(),
+    bikeSlope: this.bikeSlope(),
+    bikeTime: this.bikeTime(),
     bikeSpeed: convert.mphToMps(this.bikeSpeed()),
-    bikeTrafficStress: this.bikeTrafficStress(),
     date: this.nextDate(),
     directModes: directModes.join(','),
     egressModes: egressModes.join(','),

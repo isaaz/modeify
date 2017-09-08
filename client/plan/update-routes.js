@@ -4,6 +4,10 @@ var log = require('../log')('plan:update-routes')
 var message = require('../messages')('plan:update-routes')
 var request = require('../request')
 var Route = require('../route')
+var _tr = require('../translate')
+var fares = require('../fares')
+
+var METERS_TO_KILOMETERS = 0.001
 
 /**
  * Expose `updateRoutes`
@@ -49,8 +53,8 @@ function updateRoutes (plan, opts, callback) {
   plan.emit('updating options')
 
   // default is to query r5 only unless specified via 'routers' property in localStorage
-  let queryOtp = false
-  let queryR5 = true
+  let queryOtp = true
+  let queryR5 = false
 
   const routers = window.localStorage.getItem('routers')
   if (routers) {
@@ -77,7 +81,61 @@ function updateRoutes (plan, opts, callback) {
     } else { // both returned, look for defaultRouter setting in localStorage
       journeys = window.localStorage.getItem('defaultRouter') === 'otp' ? results.otp : results.r5
     }
+    /**
+     * set prices for car, bycicle rent and transit
+     */
+    if (journeys){
+      for (var i=0; i<journeys.profile.length; i++){
+        // gestion des bus stan, sub et ted. stan a des bus, sub et ted des cars
+        if (journeys.profile[i].modes.indexOf('bus') !== -1){
+          journeys.profile[i].costTransit = fares.transit.yearlyRoundTrip
+          journeys.profile[i].timeInBus = 0
+          journeys.profile[i].timeInSub = 0
+          journeys.profile[i].timeInTed = 0
+          for (var j = 0; j < journeys.profile[i].transit.length; j++){
+            if (journeys.profile[i].transit[j].routes[0].mode == 'BUS') {
+              if (journeys.profile[i].transit[j].routes[0].agencyName.toLowerCase() == 'sub') {
+                journeys.profile[i].timeInSub += journeys.profile[i].transit[j].rideStats.avg
+              }
+              else if (journeys.profile[i].transit[j].routes[0].agencyName.toLowerCase() == 'ted') {
+                journeys.profile[i].timeInTed += journeys.profile[i].transit[j].rideStats.avg
+              }
+              else { // Toutes les autres agences sont considérées comme étant STAN
+                journeys.profile[i].timeInBus += journeys.profile[i].transit[j].rideStats.avg  
+              }
+            } 
+          }
+        }
 
+        if (journeys.profile[i].modes.indexOf('tram') !== -1){
+          journeys.profile[i].costTransit = fares.transit.yearlyRoundTrip
+          journeys.profile[i].timesInTram = 0
+          for (var j = 0; j < journeys.profile[i].transit.length; j++){
+            if (journeys.profile[i].transit[j].routes[0].mode == 'tram') journeys.profile[i].timesInTram += journeys.profile[i].transit[j].rideStats.avg
+          }
+        }
+
+        if (journeys.profile[i].modes.indexOf('rail') !== -1){
+          journeys.profile[i].costTransit = fares.transit.yearlyRoundTrip
+          journeys.profile[i].timeInTrain = 0
+          for (var j = 0; j < journeys.profile[i].transit.length; j++){
+            if (journeys.profile[i].transit[j].routes[0].mode == 'RAIL') journeys.profile[i].timeInTrain += journeys.profile[i].transit[j].rideStats.avg
+          }
+        }
+
+        if (journeys.profile[i].modes.indexOf('bicycle_rent') !== -1){
+          journeys.profile[i].bikeRentalCostYearly = fares.bicycle_rent.yearlyRoundTrip
+        }
+
+        if (journeys.profile[i].modes.indexOf('car') !== -1 || journeys.profile[i].modes.indexOf('car_park') !== -1){
+          journeys.profile[i].carCostYearly = fares.carCostPerMiles * journeys.profile[i].driveDistance * METERS_TO_KILOMETERS * fares.tripPerYears
+          if (journeys.profile[i].modes.indexOf('car') !== -1){
+            journeys.profile[i].parkingCost = fares.parking.yearlyRoundTrip
+          }
+        }
+      }
+    }
+    
     const profile = journeys ? journeys.profile : []
     if (err) {
       done(err, res)
@@ -122,7 +180,7 @@ function updateRoutes (plan, opts, callback) {
         profile[i].plan(plan)
 
         profile[i].setCarData({
-          cost: driveOption.cost(),
+          cost: driveOption.carCostYearly() + driveOption.parkingCost(),
           emissions: driveOption.emissions(),
           time: driveOption.average()
         })
@@ -142,26 +200,27 @@ function updateRoutes (plan, opts, callback) {
 }
 
 function generateErrorMessage (plan, response) {
-  var msg = 'No results! '
+  var msg = _tr('No results! ')
   var responseText = response ? response.text : ''
 
   if (responseText.indexOf('VertexNotFoundException') !== -1) {
-    msg += 'The <strong>'
-    msg += responseText.indexOf('[from]') !== -1 ? 'from' : 'to'
-    msg += '</strong> address entered is outside the supported region.'
+    msg += _tr('The <strong>')
+    msg += responseText.indexOf('[from]') !== -1 ? _tr('from ') : _tr('to ')
+    msg += '</strong>'
+    msg += _tr('address entered is outside the supported region.')
   } else if (!plan.validCoordinates()) {
-    msg += plan.coordinateIsValid(plan.from_ll()) ? 'To' : 'From'
-    msg += ' address could not be found. Please enter a valid address.'
+    msg += plan.coordinateIsValid(plan.from_ll()) ? _tr('To') : _tr('From')
+    msg += _tr(' address could not be found. Please enter a valid address.')
   } else if (!plan.bus() || !plan.train()) {
-    msg += 'Try turning all <strong>transit</strong> modes on.'
+    msg += _tr('Try turning all <strong>transit</strong> modes on.')
   } else if (!plan.bike()) {
-    msg += 'Add biking to see bike-to-transit results.'
+    msg += _tr('Add biking to see bike-to-transit results.')
   } else if (!plan.car()) {
-    msg += 'Unfortunately we were unable to find non-driving results. Try turning on driving.'
+    msg += _tr('Unfortunately we were unable to find non-driving results. Try turning on driving.')
   } else if (plan.end_time() - plan.start_time() < 2) {
-    msg += 'Make sure the hours you specified are large enough to encompass the length of the journey.'
+    msg += _tr('Make sure the hours you specified are large enough to encompass the length of the journey.')
   } else if (plan.days() !== 'M—F') {
-    msg += 'Transit runs less often on the weekends. Try switching to a weekday.'
+    msg += _tr('Transit runs less often on the weekends. Try switching to a weekday.')
   }
 
   return msg

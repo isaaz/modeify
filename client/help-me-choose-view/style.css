@@ -75,3 +75,8 @@
 .ComparisonTable th.secondaryFilter {
   color: var(--secondary-color);
 }
+
+.basic {
+  font-size: small;
+  font-weight: lighter;
+}

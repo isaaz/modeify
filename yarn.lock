@@ -6161,6 +6161,10 @@ node-int64@^0.4.0:
   version "0.4.0"
   resolved "https://registry.yarnpkg.com/node-int64/-/node-int64-0.4.0.tgz#87a9065cdb355d3182d8f94ce11188b825c68a3b"
 
+node-jspdf@0.0.3:
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/node-jspdf/-/node-jspdf-0.0.3.tgz#aeeb2380c997948512e9dcb52151c9511ef61a9d"
+
 node-logentries@~0.1.4:
   version "0.1.4"
   resolved "https://registry.yarnpkg.com/node-logentries/-/node-logentries-0.1.4.tgz#1a0b99679b627962dc90bc698a5c12957674afc1"
@@ -7234,11 +7238,11 @@ public-encrypt@^4.0.0:
     parse-asn1 "^5.0.0"
     randombytes "^2.0.1"
 
-punycode@1.3.2:
+punycode@1.3.2, punycode@^1.3.2:
   version "1.3.2"
   resolved "https://registry.yarnpkg.com/punycode/-/punycode-1.3.2.tgz#9653a036fb7c1ee42342f2325cceefea3926c48d"
 
-punycode@^1.3.2, punycode@^1.4.1:
+punycode@^1.4.1:
   version "1.4.1"
   resolved "https://registry.yarnpkg.com/punycode/-/punycode-1.4.1.tgz#c0d5a63b2718800ad8e1eb0fa5269c84dd41845e"
 

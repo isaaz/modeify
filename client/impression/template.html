@@ -1,0 +1,72 @@
+<div class="table-responsive">
+  <table class="table ComparisonTable">
+    <thead>
+      <tr>
+        <th></th>
+        <th class="travelTime" title="temps de trajet"><i class="fa fa-clock-o"></i>temps de trajet</th>
+        <th class="totalCost" title="coût total"><i class="icon-money"></i>coût total</th>
+        <th class="walkDistance" title="Distance de marche"><i class="icon-walk"></i>Distance de marche</th>
+        <th class="calories" title="calories"><i class="icon-scale"></i>calories</th>
+        <th class="weightLost" title="poids perdu"><i class="icon-scale"></i>poids perdu</th>
+        <th class="emissions" title="CO2 émit"><img src="/images/graphics/gaz.png"> class="icon-money"></img>CO2 émit</th>
+        <th class="emissionsNOx" title="NOx émit"><i class="icon-money"></i>NOx émit</th>
+        <th class="emissionsPM10" title="PM10 émit"><i class="icon-money"></i>PM10 émit</th>
+        <th class="productiveTime" title="temps exploitable"><i class="fa fa-leanpub"></i>temps exploitable</th>
+        <th class="timeSavings" title="temps exploitable gagné"><i class="fa fa-leanpub"></i>temps exploitable gagné</th>
+        <th class="none"></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="route-summary">{{{segments}}}</td>
+        <td class="travelTime">{{time}} min</td>
+        <td class="totalCost">{{cost}}</td>
+        <td class="walkDistance">{{walkDistance}}</td>
+        <td class="calories">{{calories}}</td>
+        <td class="weightLost">{{weightLost}}</td>
+        <td class="emissions">{{emissions}}</td>
+        <td class="emissionsNOx">{{emissionsNOx}}</td>
+        <td class="emissionsPM10">{{emissionsPM10}}</td>
+        <td class="productiveTime">{{productiveTime}}</td>
+        <td class="timeSavings">{{timeSavings}}</td>
+        <td><button data-index="{{index}}" class="btn btn-default btn-sm">select</button></td>
+      </tr>
+  </table>
+</div>
+<div class="benefits-badge savings" data-visible="costPerTrip"><strong>{costPerTrip}€</strong></div>
+
+  <div class="header">
+    <span data-visible="hasRideshareMatches"><strong>{externalCarpoolMatches + internalCarpoolMatchesCount}</strong> {modeDescriptor} matches</span>
+    <span data-hidden="hasRideshareMatches">{modeDescriptor}</span>
+  </div>
+
+  <div class="simple clearfix">
+    <div class="segments" data-html="segments"></div>
+
+    <div class="minutes-column">
+      <div class="heading"><strong>{average}</strong> mins</div>
+
+      <div data-visible="freeflowTime">{freeflowTime} <span class="distance2">without traffic</span></div>
+      <div data-visible="hasTransit">
+        <div class="distance" data-visible="bikeDistances">{bikeTime} min <span class="distance2">biking</span></div>
+        <div class="distance" data-visible="walkDistances">{walkTime} min <span class="distance2">walking</span></div>
+      </div>
+      <div data-hidden="hasTransit">
+        <div class="distance" data-visible="bikeDistances">{bikeDistances} m <span class="distance2">biking</span></div>
+        <div class="distance" data-visible="walkDistances">{walkDistances} m <span class="distance2">walking</span></div>
+      </div>
+    </div>
+
+    <button class="btn btn-default select-button" on-tap="selectOption">select</button>
+
+    <div class="details-buttons">
+      <button class="btn btn-sm btn-dark show-hide show-details" href="#" on-tap="showDetails"><i class="fa fa-fw fa-plus-circle"></i> details</button>
+      <button class="btn btn-sm btn-dark show-hide hide-details" href="#" on-tap="hideDetails"><i class="fa fa-fw fa-minus-circle"></i> hide</button>
+    </div>
+  </div>
+  <div class="details">
+    <div reactive="directions"></div>
+    <div class="feedback">
+      <a href="#" on-tap="feedback"><i class="fa fa-fw fa-gear"></i> help improve route</a>
+    </div>
+  </div>

@@ -7,6 +7,7 @@ var MarkdownModal = require('../markdown-modal')
 var showWalkThrough = require('../planner-walkthrough')
 var page = require('page')
 var view = require('../view')
+var _tr = require('../translate')
 
 var aboutContent = md.render(config.About())
 var termsContent = md.render(config.Terms())
@@ -15,7 +16,9 @@ var termsContent = md.render(config.Terms())
  * Expose `View`
  */
 
-var View = module.exports = view(require('./template.html'))
+var View = module.exports = view(require('./template.html'), function (view, model) {
+  _tr.inHTML(view, 'a')
+})
 
 /**
  * Scroll to top
@@ -47,11 +50,15 @@ View.prototype.hideMenu = function () {
   evnt.unbind(document.documentElement, 'click', this.hideMenu.bind(this))
 }
 
-View.prototype.showProfile = function (e) {
-  if (e) e.preventDefault()
-  this.hideMenu()
-  page('/profile')
-}
+/**
+ * N'utilise plus les comptes
+ *
+ *View.prototype.showProfile = function (e) {
+ *  if (e) e.preventDefault()
+ *  this.hideMenu()
+ *  page('/profile')
+ *}
+ */
 
 View.prototype.showAbout = function (e) {
   if (e) e.preventDefault()

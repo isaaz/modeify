@@ -18,12 +18,17 @@ var view = require('../view')
 var showWelcomeWizard = require('../welcome-flow')
 var showWalkThrough = require('../planner-walkthrough')
 var ServiceAlertsView = require('../service-alerts-view')
+var _tr = require('../translate')
 
 var FROM = config.geocode().start_address
 var TO = config.geocode().end_address
+var SKIPWELCOME = config.skipWelcomeFlow
 var isMobile = window.innerWidth <= 480
 
 var View = view(require('./template.html'), function (view, model) {
+  _tr.inHTML(view, '.btn-default')
+  _tr.inHTML(view, '.title2')
+  _tr.attribute(view, '.icon-reverse', 'title')
   view.scrollable = view.find('.scrollable')
   view.panelFooter = view.find('.footer')
   view.optionsContainer = view.find('.options-container')
@@ -89,7 +94,7 @@ module.exports = function (ctx, next) {
     plan.clearStore()
 
     // If it's a shared URL or welcome is complete skip the welcome wizard
-    if (query.planFrom || query.planTo || (query.from && query.to) || session.commuter().profile().welcome_wizard_complete) {
+    if (SKIPWELCOME || query.planFrom || query.planTo || (query.from && query.to) || session.commuter().profile().welcome_wizard_complete) {
       showQuery(query)
     } else {
       showWelcomeWizard(session.commuter(), session.plan())
@@ -258,6 +263,14 @@ function updateMapOnPlanChange (plan, map, transitive, transitiveLayer) {
     if (journey && journey.places && journey.places.length > 0 && !isMobile) {
       try {
         log('updating data')
+        /*if(journey.streetEdges){
+          for (var i in journey.streetEdges){
+            showMapView.polyline(decode(journey.streetEdges[i].geometry.points))
+          }
+          for (var i in journey.stops){
+            //showMapView.circle([journey.stops[i].stop_lat,journey.stops[i].stop_lon])
+          }
+        }*/
         transitive.updateData(journey)
         if (plan.from() && plan.to()) {
           const bounds = transitiveLayer.getBounds()
@@ -269,4 +282,47 @@ function updateMapOnPlanChange (plan, map, transitive, transitiveLayer) {
       }
     }
   })
+}
+
+function decode (polyline) {
+  var currentPosition = 0
+
+  var currentLat = 0
+  var currentLng = 0
+
+  var dataLength = polyline.length
+
+  var polylineLatLngs = []
+
+  while (currentPosition < dataLength) {
+    var shift = 0
+    var result = 0
+
+    var byte
+
+    do {
+      byte = polyline.charCodeAt(currentPosition++) - 63
+      result |= (byte & 0x1f) << shift
+      shift += 5
+    } while (byte >= 0x20)
+
+    var deltaLat = ((result & 1) ? ~(result >> 1) : (result >> 1))
+    currentLat += deltaLat
+
+    shift = 0
+    result = 0
+
+    do {
+      byte = polyline.charCodeAt(currentPosition++) - 63
+      result |= (byte & 0x1f) << shift
+      shift += 5
+    } while (byte >= 0x20)
+
+    var deltLng = ((result & 1) ? ~(result >> 1) : (result >> 1))
+
+    currentLng += deltLng
+
+    polylineLatLngs.push([currentLat * 0.00001, currentLng * 0.00001])
+  }
+  return polylineLatLngs
 }
